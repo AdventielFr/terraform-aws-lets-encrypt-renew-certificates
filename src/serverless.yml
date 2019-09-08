@@ -1,0 +1,55 @@
+service: lets-encrypt-renew-certificates
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+
+provider:
+  name: aws
+  runtime: python3.6
+  stage:  ${opt:stage, 'stage'}
+  timeout: 60
+  memorySize: 128
+  region: ${opt:region, 'eu-west-3'}
+  profile: agrimaker
+  logRetentionInDays: 7
+
+plugins:
+  - serverless-iam-roles-per-function
+  - serverless-plugin-existing-s3
+  - serverless-python-requirements
+  - serverless-pseudo-parameters
+  - serverless-plugin-log-retention
+  
+package:
+  exclude:
+    - node_modules/**
+    - samples/**
+    - bin/**
+    - include/**
+    - lib/**
+
+functions:
+  invoke_cerbot_handler:
+    name: InvokeCerbot
+    handler: invoke_cerbot_handler.lambda_handler
+    description: Renew SSL certificates by let's and script
+    iamRoleStatementsName: ${self:provider.stage}-lambda-letsandscriptrenewcertificates-role
+    timeout: 60
+    environment:
+      S3_BUCKET: <YOUR-BUCKET>
+      CERTBOT_SERVER: https://acme-v02.api.letsencrypt.org/directory
+      ENV: ${self:provider.stage}
+      SNS_URL: <URL OF SNS TO PUSH RESULT OF LAMBDA>
+  find_expired_certificates_handler:
+    name: FindCertificatesToRefresh
+    handler: find_expired_certificates_handler.lambda_handler
+    description: Renew SSL certificates by let's and script
+    iamRoleStatementsName: ${self:provider.stage}-lambda-letsandscriptrenewcertificates-role
+    timeout: 60
+    environment:
+      REGION: <REGION OF CERTTIFICATE>
+      SQS_URL: <URL OF SQS TO PUSH REQUEST OF RENEW CERTIFCATE>
+      SNS_URL: <URL OF SNS TO PUSH RESULT OF LAMBDA>
+      ENV: ${self:provider.stage}
+    

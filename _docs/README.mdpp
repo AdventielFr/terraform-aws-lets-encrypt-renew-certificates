@@ -1,0 +1,25 @@
+<table>
+  <tr>
+    <td style="text-align: center; vertical-align: middle;"><img src="_docs/logo_aws.jpg"/></td>
+    <td style="text-align: center; vertical-align: middle;"><img src="_docs/logo_adv.jpg"/></td>
+  </tr> 
+<table>
+
+# AWS Let's Encrypt Renew certificates
+
+## I - Infrastructure components
+
+This module aims to create ...
+
+## II - Inputs / Outputs
+
+!INCLUDE "data.md", 0
+
+## III - Usage
+
+`````
+module "sample"
+{
+
+}
+`````

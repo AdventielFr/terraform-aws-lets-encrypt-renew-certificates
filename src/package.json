@@ -1,0 +1,13 @@
+{
+  "name": "lets-and-script-renew-certificates",
+  "description": "",
+  "version": "0.1.0",
+  "dependencies": {},
+  "devDependencies": {
+    "serverless-iam-roles-per-function": "^2.0.1",
+    "serverless-plugin-existing-s3": "^2.4.0",
+    "serverless-plugin-log-retention": "^1.0.3",
+    "serverless-pseudo-parameters": "^2.4.0",
+    "serverless-python-requirements": "^4.3.0"
+  }
+}
