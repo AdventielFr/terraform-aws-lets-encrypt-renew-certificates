@@ -21,6 +21,7 @@ resource "aws_s3_bucket" "this" {
     Lambda = local.function_name
   }
 }
+
 data "aws_iam_policy_document" "sqs_policy" {
   policy_id = "${local.sqs_arn}/SQSDefaultPolicy"
 
@@ -55,7 +56,7 @@ data "aws_iam_policy_document" "sqs_policy" {
 }
 
 resource "aws_sqs_queue" "this" {
-  name                       = "${local.sns_name}"
+  name                       = "${local.sqs_name}"
   visibility_timeout_seconds = var.function_timeout
   max_message_size           = 2048
   message_retention_seconds  = 86400
@@ -65,7 +66,6 @@ resource "aws_sqs_queue" "this" {
     Lambda = local.function_name
   }
 }
-
 
 data "aws_iam_policy_document" "find_expired_certificates" {
   statement {
@@ -101,6 +101,19 @@ data "aws_iam_policy_document" "find_expired_certificates" {
       "sns:Publish"
     ]
   }
+
+  statement {
+    sid    = "AllowCloudwatch"
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = [
+      "arn:aws:logs:*:*:*",
+    ]
+  }
+
 }
 
 
@@ -201,6 +214,18 @@ data "aws_iam_policy_document" "invoke_cerbot" {
       "acm:UpdateCertificateOptions"
     ]
   }
+
+  statement {
+    sid    = "AllowCloudwatch"
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = [
+      "arn:aws:logs:*:*:*",
+    ]
+  }
 }
 
 resource "aws_iam_policy" "invoke_cerbot" {
@@ -265,6 +290,16 @@ resource "aws_iam_role_policy_attachment" "find_expired_certificates" {
   role = aws_iam_role.find_expired_certificates.name
 }
 
+resource "aws_cloudwatch_log_group" "invoke_cerbot" {
+  name              = "/aws/lambda/${local.function_name}-invoke-cerbot"
+  retention_in_days = var.cloudwatch_log_retention
+}
+
+resource "aws_cloudwatch_log_group" "find_expired_certificates" {
+  name              = "/aws/lambda/${local.function_name}-find-expired-certificates"
+  retention_in_days = var.cloudwatch_log_retention
+}
+
 resource "aws_lambda_function" "invoke_cerbot" {
   function_name = "${local.function_name}-invoke-cerbot"
   memory_size = 128
@@ -286,6 +321,8 @@ resource "aws_lambda_function" "invoke_cerbot" {
   tags = {
     Lambda = local.function_name
   }
+
+  depends_on    = ["aws_iam_role_policy_attachment.invoke_cerbot", "aws_cloudwatch_log_group.invoke_cerbot"]
 }
 
 resource "aws_lambda_function" "find_expired_certificates" {
@@ -308,6 +345,8 @@ resource "aws_lambda_function" "find_expired_certificates" {
   tags = {
     Lambda = local.function_name
   }
+
+  depends_on    = ["aws_iam_role_policy_attachment.find_expired_certificates", "aws_cloudwatch_log_group.find_expired_certificates"]
 }
 
 resource "aws_cloudwatch_event_rule" "every_x_minutes" {
