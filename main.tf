@@ -2,7 +2,7 @@ data "aws_caller_identity" "current" {}
 
 locals {
   function_name = "lets-encrypt"
-  bucket_name   = var.bucket_name != "" ? var.bucket_name : format("%v-%v", data.aws_caller_identity.current.account_id, local.function_name)
+  bucket_name   = var.bucket_name != "" ? var.bucket_name : format("%v-%v-%v", data.aws_caller_identity.current.account_id, local.function_name,"renew-certificates")
   sqs_name      = "${local.function_name}-request"
   sqs_arn       = "arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${local.sqs_name}"
   sqs_url       = "https://sqs.${var.aws_region}.amazonaws.com/${data.aws_caller_identity.current.account_id}/${local.sqs_name}"
