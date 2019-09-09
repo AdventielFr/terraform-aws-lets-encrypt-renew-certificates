@@ -15,7 +15,7 @@ For the first registration of a certificate renewal request, you must post a mes
 
 The message must be JSON content of the following form
 
-```javascript
+```
 {
   "email":"administrator@acme.com",
   "domain": "www.acme.com"
@@ -58,7 +58,7 @@ where:
 `````
 module "lets_encrypt"
 {
-  source = source  = "git::https://github.com/AdventielFr/terraform-aws-lets-encrypt-renew-certificates.git?ref=1.0.0"
+  source = "git::https://github.com/AdventielFr/terraform-aws-lets-encrypt-renew-certificates.git?ref=1.0.0"
   aws_region = "eu-west-3"
 }
 `````
