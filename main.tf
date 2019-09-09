@@ -294,12 +294,12 @@ resource "aws_iam_role_policy_attachment" "find_expired_certificates" {
 }
 
 resource "aws_cloudwatch_log_group" "invoke_cerbot" {
-  name              = "/aws/lambda/${local.function_name}-invoke-cerbot"
+  name              = "/aws/lambda/${local.lambda_invoke_cerbot_name}"
   retention_in_days = var.cloudwatch_log_retention
 }
 
 resource "aws_cloudwatch_log_group" "find_expired_certificates" {
-  name              = "/aws/lambda/${local.function_name}-find-expired-certificates"
+  name              = "/aws/lambda/${local.lambda_find_expired_certificates_name}"
   retention_in_days = var.cloudwatch_log_retention
 }
 

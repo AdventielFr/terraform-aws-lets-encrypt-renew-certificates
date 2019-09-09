@@ -5,7 +5,7 @@ import logging
 from datetime import datetime, timedelta
 import pytz
 
-logger = logging.getLogger('')
+logger = logging.getLogger('adv_lambda')
 logger.setLevel(logging.INFO)
 
 def lambda_handler(event, context):
@@ -52,6 +52,8 @@ def _find_expired_certificate_renew_requests():
                 certificate_renew_request = {}
                 certificate_renew_request['domain'] = item['DomainName']
                 certificate_renew_request['email'] = emailTag['Value']
+                certificate_renew_request['custom_args'] = []
+                certificate_renew_request['custom_args'].append('--force-renewal')
                 result.append(certificate_renew_request)
     return result
 

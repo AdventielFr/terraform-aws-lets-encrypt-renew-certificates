@@ -63,6 +63,11 @@ def _obtain_certs(payload):
         '--server', CERTBOT_SERVER,
         '-d', payload['domain']
     ]
+    
+    if 'custom_args' in payload:
+        for item in payload['custom_args']:
+            certbot_args.append(item)
+
     return certbot.main.main(certbot_args)
 
 def _upload_certs(payload, s3_bucket, s3_prefix):
