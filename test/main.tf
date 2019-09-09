@@ -3,18 +3,9 @@ provider "aws" {
   region = "eu-west-3"
 }
 
-resource "random_string" "bucket_prefix" {
-  length      = 8
-  special     = false
-  upper       = false
-  min_lower   = 3
-  min_numeric = 3
-}
-
 module "lets_and_script_renew_certificates" {
   source      = "../"
   aws_region  = "eu-west-3"
-  bucket_name = "${random_string.bucket_prefix.result}-lets-and-script-renew-certificates"
 }
 
 output "bucket_arn" {

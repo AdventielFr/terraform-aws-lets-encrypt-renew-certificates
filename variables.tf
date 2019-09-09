@@ -24,10 +24,18 @@ variable "cloudwatch_log_retention" {
 variable "bucket_name" {
   description = "S3 bucket to receive certificates"
   type        = string
+  default     = ""
 }
 
 variable "scan_alarm_clock" {
-  description = "time between two scan to search for expired certificates ( in minutes default 1440 = 1 days)"
+  description = "The time between two scan to search for expired certificates ( in minutes default 1440 = 1 days)"
   type        = number
   default     = 1440
 }
+
+variable "number_days_before_expiration" {
+  description = "The Number of days before the certificate expires"
+  type        = number
+  default     = 6
+}
+

@@ -6,11 +6,11 @@ import certbot.main
 import logging
 import validators
 
-logger = logging.getLogger()
+logger = logging.getLogger('adv_lambda')
 logger.setLevel(logging.INFO)
 
 # Let’s Encrypt acme-v02 server that supports wildcard certificates
-CERTBOT_SERVER =  os.environ["CERTBOT_SERVER"]
+CERTBOT_SERVER =  os.environ["CERTBOT_SERVER_URL"]
 
 # Temp dir of Lambda runtime
 CERTBOT_DIR = '/tmp/certbot'
@@ -39,7 +39,7 @@ def _check_payload(payload):
 
 def _obtain_certs(payload):
     logger.info('Obtain certificate....')
-    check_payload(payload)
+    _check_payload(payload)
     certbot_args = [
         # Override directory paths so script doesn't have to be run as root
         '--config-dir', CERTBOT_DIR,
@@ -84,9 +84,6 @@ def _upload_certs(payload, s3_bucket, s3_prefix):
                  logger.info('Certificate: {}'.format(result['Certificate']))
     return result
                 
-def _get_bytes_from_file(filename):  
-    return open(filename, "rb").read() 
-
 def _find_certificate_arn(client, payload):
     response = client.list_certificates()
     if 'CertificateSummaryList' in response:
@@ -148,11 +145,11 @@ def _guarded_handler(event, context):
 def _send_message(message):
     logger.info('Send result message ....')
     sns = boto3.client('sns')
-    return sns.publish(TopicArn = os.environ['SNS_RESULT'], Message=message)
+    return sns.publish(TopicArn = os.environ['SNS_RESULT_ARN'], Message=message)
 
 def lambda_handler(event, context):
     try:
-        rm_tmp_dir()
+        _rm_tmp_dir()
         payload = _guarded_handler(event, context)
         logger.info('Certificate obtained and uploaded successfully.')
         _send_message("Certificate obtained and uploaded successfully for {}".format(payload['domain']))

@@ -9,7 +9,7 @@
 
 ## I - Infrastructure components
 
-This module aims to create ...
+![alt text](_docs/diagram.png)
 
 ## II - Inputs / Outputs
 
@@ -22,7 +22,8 @@ This module aims to create ...
 | certbot\_server | The URL of let's Encrypt cerbot server | string | "https://acme-v02.api.letsencrypt.org/directory" |
 | cloudwatch\_log\_retention | The cloudwatch log retention ( default 7 days ). | number | 7 |
 | function\_timeout | The amount of time your Lambda Functions has to run in seconds Default 90s | number | 90 |
-| scan\_alarm\_clock | time between two scan to search for expired certificates ( in minutes default 1440 = 1 days) | number | 1440 |
+| name | The Number of days before the certificate expires | number | 6 |
+| scan\_alarm\_clock | The time between two scan to search for expired certificates ( in minutes default 1440 = 1 days) | number | 1440 |
 
 ## Outputs
 

@@ -5,6 +5,7 @@ locals {
   bucket_name   = var.bucket_name != "" ? var.bucket_name : format("%v-%v", data.aws_caller_identity.current.account_id, local.function_name)
   sqs_name      = "${local.function_name}-request"
   sqs_arn       = "arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${local.sqs_name}"
+  sqs_url       = "https://sqs.${var.aws_region}.amazonaws.com/${data.aws_caller_identity.current.account_id}/${local.sqs_name}"
   sns_name      = "${local.function_name}-result"
   sns_arn       = "arn:aws:sns:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${local.sns_name}"
   lambda_invoke_cerbot_arn    = "arn:aws:lambda:${var.aws_region}:${data.aws_caller_identity.current.account_id}:function:lets-encrypt-invoke-cetbot"
@@ -313,8 +314,8 @@ resource "aws_lambda_function" "invoke_cerbot" {
   environment {
     variables = {
       S3_BUCKET = local.bucket_name
-      CERTBOT_SERVER = var.certbot_server
-      SNS_URL = aws_sns_topic.this.arn
+      CERTBOT_SERVER_URL = var.certbot_server
+      SNS_RESULT_ARN = aws_sns_topic.this.arn
     }
   }
 
@@ -337,8 +338,9 @@ resource "aws_lambda_function" "find_expired_certificates" {
 
   environment {
     variables = {
-      SNS_URL = aws_sns_topic.this.arn
-      SQS_URL = aws_sqs_queue.this.arn
+      SNS_RESULT_ARN = aws_sns_topic.this.arn
+      SQS_REQUEST_URL = local.sqs_url
+      NB_DAYS_BEFORE_EXPIRATION = var.number_days_before_expiration
     }
   }
 
