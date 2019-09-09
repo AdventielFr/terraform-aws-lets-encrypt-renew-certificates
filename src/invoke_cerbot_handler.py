@@ -37,6 +37,9 @@ def _check_payload(payload):
         raise ValueError("{} is not valid domain".format(payload['domain']))
     logger.info('Payload is ready')
 
+def _get_bytes_from_file(filename):  
+    return open(filename, "rb").read() 
+
 def _obtain_certs(payload):
     logger.info('Obtain certificate....')
     _check_payload(payload)
@@ -74,13 +77,13 @@ def _upload_certs(payload, s3_bucket, s3_prefix):
             logger.info('Uploading: {} => s3://{}/{}'.format(local_path,s3_bucket,s3_key))
             client.upload_file(local_path, s3_bucket, s3_key)
             if local_path.endswith('privkey.pem'):
-                result['PrivateKey'] = get_bytes_from_file(local_path)
+                result['PrivateKey'] = _get_bytes_from_file(local_path)
                 logger.info('Private Key: {}'.format(result['PrivateKey']))
             if local_path.endswith('fullchain.pem'):
-                result['CertificateChain'] = get_bytes_from_file(local_path)
+                result['CertificateChain'] = _get_bytes_from_file(local_path)
                 logger.info('Certificate Chain: {}'.format(result['CertificateChain']))
             if local_path.endswith('cert.pem'): 
-                 result['Certificate'] = get_bytes_from_file(local_path)
+                 result['Certificate'] = _get_bytes_from_file(local_path)
                  logger.info('Certificate: {}'.format(result['Certificate']))
     return result
                 
