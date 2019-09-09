@@ -11,6 +11,24 @@
 
 ![alt text](_docs/diagram.png)
 
+For the first registration of a certificate renewal request, you must post a message directly in the SQS queue. 
+
+The message must be JSON content of the following form
+
+```javascript
+{
+  "email":"administrator@acme.com",
+  "domain": "www.acme.com"
+}
+```
+
+where:
+
+* **email** : email address of the DNS domain owner (see whois)
+
+* **domain** : domain to refresh
+
+
 ## II - Inputs / Outputs
 
 ## Inputs

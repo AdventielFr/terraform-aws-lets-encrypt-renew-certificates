@@ -3,13 +3,15 @@ data "aws_caller_identity" "current" {}
 locals {
   function_name = "lets-encrypt"
   bucket_name   = var.bucket_name != "" ? var.bucket_name : format("%v-%v-%v", data.aws_caller_identity.current.account_id, local.function_name,"renew-certificates")
-  sqs_name      = "${local.function_name}-request"
+  sqs_name      = "${local.function_name}-renew-certificates-request"
   sqs_arn       = "arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${local.sqs_name}"
   sqs_url       = "https://sqs.${var.aws_region}.amazonaws.com/${data.aws_caller_identity.current.account_id}/${local.sqs_name}"
-  sns_name      = "${local.function_name}-result"
+  sns_name      = "${local.function_name}-renew-certificates-result"
   sns_arn       = "arn:aws:sns:${var.aws_region}:${data.aws_caller_identity.current.account_id}:${local.sns_name}"
-  lambda_invoke_cerbot_arn    = "arn:aws:lambda:${var.aws_region}:${data.aws_caller_identity.current.account_id}:function:lets-encrypt-invoke-cetbot"
-  lambda_find_expired_certificates_arn    = "arn:aws:lambda:${var.aws_region}:${data.aws_caller_identity.current.account_id}:function:lets-encrypt-find-expired-certificates"
+  lambda_invoke_cerbot_name = "${local.function_name}-renew-certificates-invoke-cetbot"
+  lambda_invoke_cerbot_arn    = "arn:aws:lambda:${var.aws_region}:${data.aws_caller_identity.current.account_id}:function:lets-encrypt-renew-certificates-invoke-cetbot"
+  lambda_find_expired_certificates_name = "${local.function_name}-renew-certificates-find-expired-certificates"
+  lambda_find_expired_certificates_arn    = "arn:aws:lambda:${var.aws_region}:${data.aws_caller_identity.current.account_id}:function:lets-encrypt-renew-certificates-find-expired-certificates"
 
 }
 
@@ -57,7 +59,7 @@ data "aws_iam_policy_document" "sqs_policy" {
 }
 
 resource "aws_sqs_queue" "this" {
-  name                       = "${local.sqs_name}"
+  name                       = local.sqs_name
   visibility_timeout_seconds = var.function_timeout
   max_message_size           = 2048
   message_retention_seconds  = 86400
@@ -302,7 +304,7 @@ resource "aws_cloudwatch_log_group" "find_expired_certificates" {
 }
 
 resource "aws_lambda_function" "invoke_cerbot" {
-  function_name = "${local.function_name}-invoke-cerbot"
+  function_name = local.lambda_invoke_cerbot_name
   memory_size = 128
   description = "Invoke Let’s Encrypt to refresh certificate"
   timeout = var.function_timeout
@@ -327,7 +329,7 @@ resource "aws_lambda_function" "invoke_cerbot" {
 }
 
 resource "aws_lambda_function" "find_expired_certificates" {
-  function_name = "${local.function_name}-find-expired-certificates"
+  function_name = local.lambda_find_expired_certificates_name
   memory_size = 128
   description = "Find certificates to refresh by Let’s Encrypt"
   timeout = var.function_timeout
@@ -378,7 +380,7 @@ resource "aws_lambda_event_source_mapping" "this" {
 }
 
 resource "aws_sns_topic" "this" {
-  name = "${local.function_name}-result"
+  name = local.sns_name
   tags = {
     Lambda = local.function_name
   }
