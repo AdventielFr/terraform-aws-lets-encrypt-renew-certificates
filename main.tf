@@ -325,7 +325,10 @@ resource "aws_lambda_function" "invoke_cerbot" {
     Lambda = local.function_name
   }
 
-  depends_on    = ["aws_iam_role_policy_attachment.invoke_cerbot", "aws_cloudwatch_log_group.invoke_cerbot"]
+  depends_on    = [
+      aws_iam_role_policy_attachment.invoke_cerbot,
+      aws_cloudwatch_log_group.invoke_cerbot
+  ]
 }
 
 resource "aws_lambda_function" "find_expired_certificates" {
@@ -354,23 +357,23 @@ resource "aws_lambda_function" "find_expired_certificates" {
 }
 
 resource "aws_cloudwatch_event_rule" "every_x_minutes" {
-  name = "every_x_minutes"
+  name = "find_expired_certificates_every_x_minutes"
   description = "Fires every x minutes"
   schedule_expression = "rate(${var.scan_alarm_clock} minutes)"
 }
 
 resource "aws_cloudwatch_event_target" "check_every_x_minutes" {
-  rule = "${aws_cloudwatch_event_rule.every_x_minutes.name}"
+  rule = aws_cloudwatch_event_rule.every_x_minutes.name
   target_id = "${local.function_name}_find_expired_certificates"
-  arn = "${aws_lambda_function.find_expired_certificates.arn}"
+  arn = aws_lambda_function.find_expired_certificates.arn
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch_to_call_find_expired_certificates" {
   statement_id = "AllowExecutionFromCloudWatch"
   action = "lambda:InvokeFunction"
-  function_name = "${aws_lambda_function.find_expired_certificates.function_name}"
+  function_name = aws_lambda_function.find_expired_certificates.function_name
   principal = "events.amazonaws.com"
-  source_arn = "${aws_cloudwatch_event_rule.every_x_minutes.arn}"
+  source_arn = aws_cloudwatch_event_rule.every_x_minutes.arn
 }
 
 resource "aws_lambda_event_source_mapping" "this" {
