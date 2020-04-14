@@ -353,7 +353,10 @@ resource "aws_lambda_function" "find_expired_certificates" {
     Lambda = local.function_name
   }
 
-  depends_on    = ["aws_iam_role_policy_attachment.find_expired_certificates", "aws_cloudwatch_log_group.find_expired_certificates"]
+  depends_on    = [
+    aws_iam_role_policy_attachment.find_expired_certificates,
+    aws_cloudwatch_log_group.find_expired_certificates
+  ]
 }
 
 resource "aws_cloudwatch_event_rule" "every_x_minutes" {
