@@ -6,13 +6,14 @@ custom:
 
 provider:
   name: aws
-  runtime: python3.6
+  runtime: python3.8
   stage:  ${opt:stage, 'stage'}
   timeout: 60
   memorySize: 128
   region: ${opt:region, 'eu-west-3'}
   profile: agrimaker
   logRetentionInDays: 7
+  lambdaHashingVersion: 20201221
 
 plugins:
   - serverless-iam-roles-per-function
